@@ -31,7 +31,13 @@ if (-not [string]::IsNullOrWhiteSpace($Owner)) {
 
 Push-Location $RepoRoot
 try {
-    $existingRemote = git remote get-url origin 2>$null
+    $existingRemote = ""
+    try {
+        $existingRemote = git remote get-url origin 2>$null
+    }
+    catch {
+        $existingRemote = ""
+    }
     if ([string]::IsNullOrWhiteSpace($existingRemote)) {
         gh repo create $RepoSpec --private --source . --remote origin --push
     } else {
