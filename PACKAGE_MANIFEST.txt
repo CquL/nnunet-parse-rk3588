@@ -1,5 +1,5 @@
 ﻿nnUNet PARSE RK3588 full package manifest
-Generated: 2026-05-20 23:47:17
+Generated: 2026-05-20 23:48:57
 
 convert_onnx_to_rknn.py	1392
 deployment\__pycache__\device_infer_nii_rknn.cpython-312.pyc	13252
@@ -14,7 +14,7 @@ deployment\rknn_convert.log	79614
 deployment\rknn_convert_32x64x64.log	64863
 export_nnunet_patch_onnx.py	2505
 export_parse_preview.py	3406
-MegaFlow AI开放平台使用流程.pdf	18888223
+MegaFlow_AI_platform_workflow.pdf	18888223
 nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\dataset.json	171
 nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\fold_0\checkpoint_best.pth	246503074
 nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\plans.json	16261
