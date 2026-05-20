@@ -2,7 +2,32 @@
 
 Initial private package for nnUNetv2 PARSE local inference and RK3588 RKNN feasibility testing.
 
-Included in the release asset:
+Included in the release assets:
+
+- `nnunet_parse_rk3588_full_package.zip.part01` ... `part09`
+- `SHA256SUMS.txt`
+- `REASSEMBLE_RELEASE_ASSET.ps1`
+- `REASSEMBLE_RELEASE_ASSET.sh`
+
+Reassemble on Windows PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\REASSEMBLE_RELEASE_ASSET.ps1
+```
+
+Reassemble on Linux:
+
+```bash
+bash REASSEMBLE_RELEASE_ASSET.sh
+```
+
+The reassembled zip should match:
+
+```text
+4917F7BCB2F358DC8B3EC92C8A0565729A48734A3120AAA0A066B80B2CD2708A  nnunet_parse_rk3588_full_package.zip
+```
+
+The full package contains:
 
 - nnUNetv2 model folder with `checkpoint_best.pth`, `plans.json`, and `dataset.json`
 - two `.nii.gz` test volumes
