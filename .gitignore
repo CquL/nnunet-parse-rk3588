@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Large artifacts are uploaded as a private GitHub Release asset.
+*.zip
+*.rknn
+*.onnx
+*.pth
+*.nii
+*.nii.gz
+
+# Generated local outputs.
+predictions/
+preview_png/
+artifacts/

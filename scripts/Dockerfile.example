@@ -1,0 +1,24 @@
+FROM pytorch/pytorch:2.5.1-cuda12.4-cudnn9-runtime
+
+WORKDIR /workspace
+
+RUN pip install --no-cache-dir nnunetv2 SimpleITK
+
+ENV nnUNet_results=/workspace/nnunetv2_PARSE_model_minimal
+ENV nnUNet_raw=/workspace/nnUNet_raw_placeholder
+ENV nnUNet_preprocessed=/workspace/nnUNet_preprocessed_placeholder
+
+CMD ["nnUNetv2_predict", \
+     "-i", "/workspace/nnunetv2_PARSE_test_images", \
+     "-o", "/workspace/predictions", \
+     "-d", "501", \
+     "-c", "3d_fullres", \
+     "-f", "0", \
+     "-tr", "nnUNetTrainer", \
+     "-p", "nnUNetPlans", \
+     "-chk", "checkpoint_best.pth", \
+     "-device", "cuda", \
+     "--disable_tta", \
+     "--disable_progress_bar", \
+     "-npp", "1", \
+     "-nps", "1"]

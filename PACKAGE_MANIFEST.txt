@@ -1,0 +1,52 @@
+﻿nnUNet PARSE RK3588 full package manifest
+Generated: 2026-05-20 23:47:17
+
+convert_onnx_to_rknn.py	1392
+deployment\__pycache__\device_infer_nii_rknn.cpython-312.pyc	13252
+deployment\check_rk3588_env.sh	596
+deployment\device_infer_nii_rknn.py	7630
+deployment\device_probe_rknn.py	1682
+deployment\parse_3d_fullres_patch_32x64x64.onnx	123168034
+deployment\parse_3d_fullres_patch_32x64x64.rknn	465588030
+deployment\parse_3d_fullres_patch_96x160x160.onnx	123168038
+deployment\README_RK3588_probe.txt	1537
+deployment\rknn_convert.log	79614
+deployment\rknn_convert_32x64x64.log	64863
+export_nnunet_patch_onnx.py	2505
+export_parse_preview.py	3406
+MegaFlow AI开放平台使用流程.pdf	18888223
+nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\dataset.json	171
+nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\fold_0\checkpoint_best.pth	246503074
+nnunetv2_PARSE_model_minimal\Dataset501_PARSE\nnUNetTrainer__nnUNetPlans__3d_fullres\plans.json	16261
+nnunetv2_PARSE_test_images\PA000005_0000.nii.gz	80409240
+nnunetv2_PARSE_test_images\PA000016_0000.nii.gz	90273074
+PACKAGE_MANIFEST.txt	80
+predictions\dataset.json	181
+predictions\PA000005.nii.gz	151325
+predictions\PA000016.nii.gz	166847
+predictions\plans.json	16792
+predictions\predict_from_raw_data_args.json	416
+preview_png\PA000005_z012_overlay.png	184968
+preview_png\PA000005_z039_overlay.png	185266
+preview_png\PA000005_z066_overlay.png	182072
+preview_png\PA000005_z092_overlay.png	185046
+preview_png\PA000005_z119_overlay.png	190414
+preview_png\PA000005_z146_overlay.png	191986
+preview_png\PA000005_z172_overlay.png	192650
+preview_png\PA000005_z199_overlay.png	177993
+preview_png\PA000005_z226_overlay.png	177779
+preview_png\PA000016_z029_overlay.png	180832
+preview_png\PA000016_z062_overlay.png	177845
+preview_png\PA000016_z095_overlay.png	182496
+preview_png\PA000016_z128_overlay.png	184433
+preview_png\PA000016_z162_overlay.png	186195
+preview_png\PA000016_z195_overlay.png	191893
+preview_png\PA000016_z228_overlay.png	185568
+preview_png\PA000016_z261_overlay.png	180951
+preview_png\PA000016_z294_overlay.png	164078
+README.md	1737
+RELEASE_NOTES.md	717
+run_inference_here.bat	1125
+run_inference_here.ps1	1220
+run_inference_here.py	1616
+run_parse_inference_from_chinese_source.ps1	1850
