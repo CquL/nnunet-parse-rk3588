@@ -1,0 +1,23 @@
+{
+  "model_file": "parse_3d_fullres_patch_32x64x64.rknn",
+  "num_classes": 2,
+  "rknn_patch_size_zyx": [32, 64, 64],
+  "plans_patch_size_zyx": [96, 160, 160],
+  "target_spacing_zyx": [1.0, 0.65625, 0.65625],
+  "tile_step_size": 0.5,
+  "use_gaussian": true,
+  "resample_logits_to_original": true,
+  "tta": true,
+  "normalization": {
+    "scheme": "CTNormalization",
+    "clip_low": -778.0,
+    "clip_high": 445.0,
+    "mean": 42.44314956665039,
+    "std": 301.8079528808594
+  },
+  "labels": {
+    "background": 0,
+    "vessel": 1
+  },
+  "note": "This is the currently available RKNN feasibility model. Its patch size is smaller than the nnUNetv2 plan patch size, so it is not fully architecture/pipeline aligned yet."
+}

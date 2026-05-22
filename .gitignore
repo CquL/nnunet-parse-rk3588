@@ -8,10 +8,20 @@ Thumbs.db
 *.rknn
 *.onnx
 *.pth
+*.pt
 *.nii
 *.nii.gz
+*.npy
 
 # Generated local outputs.
 predictions/
 preview_png/
 artifacts/
+outputs/
+check_external_data/
+
+# Local full packages and duplicated binary workdirs.
+nnunet_parse_rk3588_full_package/
+rk3588_parse_deploy_package/
+rk3588_parse_min_deploy_package/
+nnunet-parse-rk3588-0.1.0/

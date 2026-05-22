@@ -14,6 +14,8 @@ onnx==1.21.0
 numpy==2.4.2
 nnunetv2==2.7.0
 SimpleITK==2.5.5
+scipy
+scikit-image
 
 # Optional: only needed if you want to run/verify ONNX with ONNX Runtime.
 # onnxruntime

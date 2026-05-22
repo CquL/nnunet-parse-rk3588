@@ -8,6 +8,7 @@ sudo apt-get install -y python3-pip python3-venv libgomp1
 
 python3 -m pip install --user --upgrade pip
 python3 -m pip install --user numpy SimpleITK rknn-toolkit-lite2
+python3 -m pip install --user scipy scikit-image || true
 
 echo
 echo "Checking imports..."
@@ -19,6 +20,16 @@ from rknnlite.api import RKNNLite
 print("numpy:", numpy.__version__)
 print("SimpleITK: OK")
 print("RKNNLite: OK")
+try:
+    import scipy
+    print("scipy:", scipy.__version__)
+except Exception as exc:
+    print("scipy: OPTIONAL_MISSING", repr(exc))
+try:
+    import skimage
+    print("scikit-image:", skimage.__version__)
+except Exception as exc:
+    print("scikit-image: OPTIONAL_MISSING", repr(exc))
 PY
 
 echo

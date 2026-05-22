@@ -13,6 +13,7 @@ If the board has no internet, install these packages manually:
 
 ```bash
 python3 -m pip install numpy SimpleITK rknn-toolkit-lite2
+python3 -m pip install scipy scikit-image
 ```
 
 ## 2. Check Device Environment
@@ -25,6 +26,7 @@ Important lines:
 
 - `uname -m` should be `aarch64`
 - `rknnlite import: OK`
+- `scipy import: OK` and `scikit-image import: OK` are recommended for the closer nnUNetv2-aligned path. If they are missing, the script can still run with a SimpleITK fallback.
 
 ## 3. Probe RKNN Runtime
 
