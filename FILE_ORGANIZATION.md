@@ -14,10 +14,40 @@ It contains:
 rk3588_parse_nnunetv2_aligned_deploy.zip
 nnunetv2_PARSE_fold0_evalset.zip
 rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
+nnunetv2_PARSE_fold0_evalset.zip.sha256
+h100_rknn96_build_package.zip
+h100_rknn96_build_package.zip.sha256
 README_UPLOAD_RK3588.md
 ```
 
-Only the two zip files are required for running the evalset on the board. The `.sha256` file is optional.
+Only the deployment zip and evalset zip are required for running the evalset on
+the board. The `.sha256` files are optional integrity checks. The H100 zip is
+for server-side 96x160x160 RKNN generation, not for the RK3588 board.
+
+## Upload To H100 / Linux Server
+
+The clean server-side build package is:
+
+```text
+deliverables/h100_rknn96_build_package/
+```
+
+It contains export/convert scripts, `plans.json`, `dataset.json`, and the 96
+patch-size config template. It intentionally does not include:
+
+```text
+checkpoint_best.pth
+*.onnx
+*.rknn
+```
+
+Copy `checkpoint_best.pth` into the expected `fold_0/` directory on the server,
+then run:
+
+```bash
+bash run_export_96_onnx.sh
+bash run_convert_96_rknn.sh
+```
 
 ## Main Deployment Source
 
@@ -27,6 +57,17 @@ rk3588_parse_nnunetv2_aligned_deploy/
 ```
 
 These are the active deployment files. The zip is generated from `rk3588_parse_nnunetv2_aligned_deploy/`.
+
+Runtime logs and metrics are produced by the deployment launchers:
+
+```text
+metrics_infer.jsonl
+metrics_eval.csv
+metrics_summary.json
+logs/*_infer.log
+logs/*_monitor.log
+logs/inference_runs.tsv
+```
 
 ## Conversion And Debug Scripts
 
