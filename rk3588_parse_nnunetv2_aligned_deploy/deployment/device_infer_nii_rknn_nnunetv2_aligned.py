@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import datetime as dt
+import hashlib
 import itertools
 import json
 import math
+import shutil
 import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +31,72 @@ except Exception:
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG = ROOT / "model_config_parse_current_32x64x64.json"
 ANISO_THRESHOLD = 3.0
+
+
+def now_iso() -> str:
+    return dt.datetime.now().astimezone().isoformat(timespec="seconds")
+
+
+def file_sha256(path: Path, max_bytes: int = 16 * 1024 * 1024) -> str:
+    # Avoid hashing huge RKNN files on slow eMMC unless explicitly small enough.
+    if not path.exists() or path.stat().st_size > max_bytes:
+        return ""
+    digest = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def read_proc_status_kb() -> dict[str, int]:
+    result: dict[str, int] = {}
+    try:
+        for line in Path("/proc/self/status").read_text(encoding="utf-8", errors="ignore").splitlines():
+            if line.startswith(("VmRSS:", "VmHWM:")):
+                key, value = line.split(":", 1)
+                parts = value.strip().split()
+                if parts:
+                    result[key] = int(parts[0])
+    except Exception:
+        pass
+    return result
+
+
+def mem_available_kb() -> int:
+    try:
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8", errors="ignore").splitlines():
+            if line.startswith("MemAvailable:"):
+                return int(line.split()[1])
+    except Exception:
+        pass
+    return -1
+
+
+def disk_free_mb(path: Path) -> int:
+    try:
+        usage = shutil.disk_usage(str(path if path.exists() else path.parent))
+        return int(usage.free / (1024 * 1024))
+    except Exception:
+        return -1
+
+
+def read_rknpu_load_text() -> str:
+    paths = [Path("/sys/kernel/debug/rknpu/load")]
+    paths.extend(Path("/sys/kernel/debug").glob("rknpu*/load") if Path("/sys/kernel/debug").exists() else [])
+    texts = []
+    for path in paths:
+        try:
+            if path.exists():
+                texts.append(f"{path}: {path.read_text(encoding='utf-8', errors='ignore').strip()}")
+        except Exception:
+            continue
+    return "\n".join(texts)
+
+
+def append_jsonl(path: Path, row: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def parse_shape(value: str) -> tuple[int, int, int]:
@@ -371,11 +441,14 @@ def load_rknn(model_path: Path, core_mask: str = "auto-detect"):
         ) from exc
 
     rknn = RKNNLite()
+    load_start = time.perf_counter()
     ret = rknn.load_rknn(str(model_path))
+    load_ms = (time.perf_counter() - load_start) * 1000.0
     if ret != 0:
         raise RuntimeError(f"load_rknn failed, ret={ret}")
 
     selected_mask, selected_name = select_npu_core_mask(RKNNLite, core_mask)
+    init_start = time.perf_counter()
     if selected_mask is None:
         print("NPU core mask: default init_runtime()", flush=True)
         ret = rknn.init_runtime()
@@ -385,9 +458,18 @@ def load_rknn(model_path: Path, core_mask: str = "auto-detect"):
         if ret != 0 and selected_name not in ("NPU_CORE_AUTO", "default") and hasattr(RKNNLite, "NPU_CORE_AUTO"):
             print(f"init_runtime with {selected_name} failed, retrying NPU_CORE_AUTO", flush=True)
             ret = rknn.init_runtime(core_mask=RKNNLite.NPU_CORE_AUTO)
+            selected_name = "NPU_CORE_AUTO"
+            selected_mask = int(RKNNLite.NPU_CORE_AUTO)
+    init_ms = (time.perf_counter() - init_start) * 1000.0
     if ret != 0:
         raise RuntimeError(f"init_runtime failed, ret={ret}")
-    return rknn
+    return rknn, {
+        "core_mask_requested": core_mask,
+        "core_mask_selected_name": selected_name,
+        "core_mask_selected_value": selected_mask,
+        "load_rknn_ms": round(load_ms, 3),
+        "init_runtime_ms": round(init_ms, 3),
+    }
 
 
 def output_to_logits(output: np.ndarray, patch_size: tuple[int, int, int], num_classes: int) -> np.ndarray:
@@ -465,16 +547,35 @@ def run_sliding_window(
         flush=True,
     )
 
+    patch_times_ms: list[float] = []
     for index, (z, y, x) in enumerate(starts, start=1):
         patch = padded[z : z + dz, y : y + dy, x : x + dx]
+        patch_start = time.perf_counter()
         logits = infer_patch_with_tta(rknn, patch, patch_size, num_classes, use_tta)
+        patch_times_ms.append((time.perf_counter() - patch_start) * 1000.0)
         score_sum[:, z : z + dz, y : y + dy, x : x + dx] += logits * weight[None]
         weight_sum[z : z + dz, y : y + dy, x : x + dx] += weight
         if index == 1 or index % 25 == 0 or index == len(starts):
             print(f"Processed patches: {index}/{len(starts)}", flush=True)
 
     score_sum /= np.maximum(weight_sum, 1e-6)[None]
-    return score_sum[(slice(None), *crop_slices)]
+    times = np.asarray(patch_times_ms, dtype=np.float64)
+    elapsed_ms = float(times.sum()) if times.size else 0.0
+    stats = {
+        "preprocessed_shape_zyx": list(image_zyx.shape),
+        "padded_shape_zyx": list(padded.shape),
+        "patch_size_zyx": list(patch_size),
+        "num_patches": len(starts),
+        "tta_multiplier": len(tta_flip_axes(use_tta)),
+        "patch_windows": len(starts),
+        "npu_forward_calls_estimated": len(starts) * len(tta_flip_axes(use_tta)),
+        "patch_infer_ms_total": round(elapsed_ms, 3),
+        "patch_infer_ms_mean": round(float(times.mean()), 3) if times.size else 0.0,
+        "patch_infer_ms_p50": round(float(np.percentile(times, 50)), 3) if times.size else 0.0,
+        "patch_infer_ms_p95": round(float(np.percentile(times, 95)), 3) if times.size else 0.0,
+        "patch_throughput_patches_per_sec": round(len(starts) / (elapsed_ms / 1000.0), 6) if elapsed_ms > 0 else 0.0,
+    }
+    return score_sum[(slice(None), *crop_slices)], stats
 
 
 def logits_to_original_mask(
@@ -570,7 +671,20 @@ def main() -> None:
     parser.add_argument("--no-tta", action="store_true", help="Disable mirror TTA even if the config enables it")
     parser.add_argument("--core-mask", default="auto-detect", help="NPU core mask: auto-detect, auto, all, 0, 1, 2, 0_1, or 0_1_2")
     parser.add_argument("--argmax-before-resample", action="store_true", help="Resample mask instead of class logits")
+    parser.add_argument("--metrics-jsonl", default=None, help="Append one structured inference metrics row to this JSONL file")
     args = parser.parse_args()
+    total_start = time.perf_counter()
+    started_at = now_iso()
+    metrics: dict[str, Any] = {
+        "timestamp_start_iso": started_at,
+        "status": "running",
+        "input_path": args.input,
+        "output_path": args.output,
+        "rss_kb_start": read_proc_status_kb().get("VmRSS", -1),
+        "mem_available_kb_start": mem_available_kb(),
+        "disk_free_mb_start": disk_free_mb(Path(args.output)),
+        "rknpu_load_start": read_rknpu_load_text(),
+    }
 
     config_path = Path(args.config)
     cfg = load_config(config_path)
@@ -585,9 +699,36 @@ def main() -> None:
     model_path = Path(args.model) if args.model else config_path.parent / str(cfg["model_file"])
     if not model_path.exists():
         raise FileNotFoundError(f"RKNN model not found: {model_path}")
+    metrics.update(
+        {
+            "case_id": Path(args.output).name.removesuffix(".nii.gz"),
+            "model_path": str(model_path),
+            "model_size_bytes": model_path.stat().st_size,
+            "model_sha256_if_small": file_sha256(model_path),
+            "config_path": str(config_path),
+            "config_sha256": file_sha256(config_path),
+            "tile_step_size": tile_step_size,
+            "gaussian_enabled": use_gaussian,
+            "tta_enabled": use_tta,
+            "resample_logits_to_original": resample_logits,
+            "num_classes": num_classes,
+        }
+    )
 
+    preprocess_start = time.perf_counter()
     reference_image = sitk.ReadImage(args.input)
     image_zyx, preprocess_info = preprocess_image_official_like(reference_image, cfg)
+    metrics["preprocess_ms"] = round((time.perf_counter() - preprocess_start) * 1000.0, 3)
+    metrics.update(
+        {
+            "input_size_xyz": list(reference_image.GetSize()),
+            "spacing_xyz": [float(i) for i in reference_image.GetSpacing()],
+            "input_shape_zyx": list(sitk.GetArrayViewFromImage(reference_image).shape),
+            "target_spacing_zyx": list(target_spacing),
+            "preprocess_mode": preprocess_info.get("mode"),
+            "resampling_backend": preprocess_info.get("resampling_backend", ""),
+        }
+    )
 
     print(f"Input size xyz={reference_image.GetSize()}, spacing xyz={reference_image.GetSpacing()}")
     print(f"Target shape zyx={image_zyx.shape}, spacing zyx={target_spacing}")
@@ -597,9 +738,11 @@ def main() -> None:
     print(f"RKNN model={model_path}")
     print(f"Config={config_path}")
 
-    rknn = load_rknn(model_path, args.core_mask)
+    rknn, rknn_metrics = load_rknn(model_path, args.core_mask)
+    metrics.update(rknn_metrics)
     try:
-        logits = run_sliding_window(
+        sliding_start = time.perf_counter()
+        logits, sliding_metrics = run_sliding_window(
             rknn,
             image_zyx,
             patch_size,
@@ -608,14 +751,37 @@ def main() -> None:
             use_gaussian,
             use_tta,
         )
+        metrics["sliding_window_ms"] = round((time.perf_counter() - sliding_start) * 1000.0, 3)
+        metrics.update(sliding_metrics)
     finally:
         rknn.release()
 
+    postprocess_start = time.perf_counter()
     mask = logits_to_original_mask(logits, preprocess_info, reference_image, resample_logits)
+    metrics["postprocess_ms"] = round((time.perf_counter() - postprocess_start) * 1000.0, 3)
+    write_start = time.perf_counter()
     write_mask(mask, reference_image, Path(args.output))
+    metrics["write_output_ms"] = round((time.perf_counter() - write_start) * 1000.0, 3)
     labels, counts = np.unique(mask, return_counts=True)
-    print(f"Output labels: {dict(zip(labels.tolist(), counts.tolist()))}")
+    label_counts = dict(zip([str(i) for i in labels.tolist()], [int(i) for i in counts.tolist()]))
+    print(f"Output labels: {label_counts}")
     print(f"Output written: {args.output}")
+    proc_status = read_proc_status_kb()
+    metrics.update(
+        {
+            "timestamp_end_iso": now_iso(),
+            "status": "ok",
+            "total_ms": round((time.perf_counter() - total_start) * 1000.0, 3),
+            "rss_kb_end": proc_status.get("VmRSS", -1),
+            "rss_kb_peak": proc_status.get("VmHWM", -1),
+            "mem_available_kb_end": mem_available_kb(),
+            "disk_free_mb_end": disk_free_mb(Path(args.output)),
+            "rknpu_load_end": read_rknpu_load_text(),
+            "output_label_counts": label_counts,
+        }
+    )
+    if args.metrics_jsonl:
+        append_jsonl(Path(args.metrics_jsonl), metrics)
 
 
 if __name__ == "__main__":

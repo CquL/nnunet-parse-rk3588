@@ -22,16 +22,26 @@ fi
 IMAGE_DIR="$EVALSET_DIR/images"
 LABEL_DIR="$EVALSET_DIR/labels"
 mkdir -p "$OUTPUT_DIR"
+LOG_DIR="$OUTPUT_DIR/logs"
+mkdir -p "$LOG_DIR"
+RUN_LOG="$LOG_DIR/evalset_$(date '+%Y%m%d_%H%M%S').log"
 
 if [ ! -d "$IMAGE_DIR" ]; then
   echo "Missing image directory: $IMAGE_DIR" >&2
   exit 2
 fi
 
+{
+  echo "start_time=$(date -Iseconds)"
+  echo "evalset_dir=$EVALSET_DIR"
+  echo "output_dir=$OUTPUT_DIR"
+  echo "extra_args=$*"
+} | tee -a "$RUN_LOG"
+
 for image in "$IMAGE_DIR"/*_0000.nii.gz; do
   case_name="$(basename "$image" _0000.nii.gz)"
   output="$OUTPUT_DIR/${case_name}.nii.gz"
-  echo "[$(date '+%F %T')] Running $case_name"
+  echo "[$(date '+%F %T')] Running $case_name" | tee -a "$RUN_LOG"
   bash "$SCRIPT_DIR/run_aligned32_inference.sh" "$image" "$output" "$@"
 done
 
@@ -39,7 +49,10 @@ if [ -d "$LABEL_DIR" ]; then
   python3 "$SCRIPT_DIR/evaluate_segmentation_dice.py" \
     --pred-dir "$OUTPUT_DIR" \
     --label-dir "$LABEL_DIR" \
-    --csv "$OUTPUT_DIR/metrics_eval.csv"
+    --csv "$OUTPUT_DIR/metrics_eval.csv" \
+    --summary-json "$OUTPUT_DIR/metrics_summary.json" | tee -a "$RUN_LOG"
 else
-  echo "Label directory not found, skipped Dice: $LABEL_DIR"
+  echo "Label directory not found, skipped Dice: $LABEL_DIR" | tee -a "$RUN_LOG"
 fi
+
+echo "end_time=$(date -Iseconds)" | tee -a "$RUN_LOG"

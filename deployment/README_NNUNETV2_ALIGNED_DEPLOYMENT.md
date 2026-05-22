@@ -60,6 +60,7 @@ against `nnunetv2_PARSE_fold0_evalset/labels`. Results are saved to:
 
 ```text
 rk3588_parse_nnunetv2_aligned_deploy/outputs/evalset_aligned32/metrics_eval.csv
+rk3588_parse_nnunetv2_aligned_deploy/outputs/evalset_aligned32/metrics_summary.json
 ```
 
 For a first quick pass, use no overlap and no Gaussian:
@@ -101,3 +102,35 @@ For RK3588 runtime you do not need `.pth` or `.onnx`. You need:
 If `scipy` and `scikit-image` are available, the script prints `Preprocess mode=official_like` and `Resampling backend=skimage` or `scipy_map_coordinates`. If they are missing, it falls back to the older SimpleITK resampling path so the deployment can still run.
 
 Keep `plans.json` and `dataset.json` in the package for traceability and future regeneration, but they are not loaded by the aligned script unless you choose to build a dynamic config loader later.
+
+## Runtime Monitoring
+
+The launcher scripts now write both model metrics and runtime snapshots. For a
+single case:
+
+```text
+../outputs/metrics_infer.jsonl
+../outputs/logs/CASE_infer.log
+../outputs/logs/CASE_monitor.log
+../outputs/logs/inference_runs.tsv
+```
+
+For an evalset run:
+
+```text
+../outputs/evalset_aligned32/metrics_eval.csv
+../outputs/evalset_aligned32/metrics_summary.json
+../outputs/evalset_aligned32/logs/evalset_*.log
+```
+
+The JSONL row includes input shape, spacing, patch size, patch count, TTA and
+Gaussian status, selected RKNN core mask, preprocess/load/inference/postprocess
+timing, patch timing percentiles, output label counts, RSS peak, available
+memory, disk space, and readable RKNPU debug load text.
+
+The monitor interval defaults to 10 seconds. Override or disable it with:
+
+```bash
+MONITOR_INTERVAL=5 bash run_aligned32_inference.sh INPUT.nii.gz OUTPUT.nii.gz
+MONITOR_INTERVAL=0 bash run_aligned32_inference.sh INPUT.nii.gz OUTPUT.nii.gz
+```

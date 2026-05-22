@@ -21,7 +21,7 @@ outputs/
 check_external_data/
 
 # Local full packages and duplicated binary workdirs.
-Dataset501_PARSE/
+/Dataset501_PARSE/
 PACKAGE_MANIFEST.txt
 publish_to_github_private.ps1
 docs/*.pdf

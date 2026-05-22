@@ -81,7 +81,13 @@ Resampling backend=skimage
 
 ```text
 deployment/
-  RK3588 runtime scripts, aligned inference, environment checks, eval scripts.
+  RK3588 runtime scripts, aligned inference, environment checks, monitoring,
+  and Dice/HD95 evaluation scripts.
+
+deliverables/
+  Clean handoff packages. `h100_rknn96_build_package` is the server-side
+  package for exporting/converting the official 96x160x160 RKNN. The checkpoint
+  is intentionally not stored in git.
 
 rk3588_parse_nnunetv2_aligned_deploy/
   Unzipped deploy package skeleton. The large .rknn and test image are excluded from git.
@@ -124,7 +130,10 @@ Expected asset links after release upload:
 ```text
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_parse_nnunetv2_aligned_deploy.zip
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip.sha256
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip.sha256
 ```
 
 Local files prepared for upload:
@@ -133,12 +142,15 @@ Local files prepared for upload:
 deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip
 deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 deploy_upload/nnunetv2_PARSE_fold0_evalset.zip
+deploy_upload/nnunetv2_PARSE_fold0_evalset.zip.sha256
+deploy_upload/h100_rknn96_build_package.zip
+deploy_upload/h100_rknn96_build_package.zip.sha256
 ```
 
 Current deploy zip SHA256:
 
 ```text
-79bdce64b895a6ba7728bbf24b46ded7ccf7ee80d590ad601aab105d74a73293
+3bd7760086d86ea101d921f65e1869f2a0af526e08fd91ee8ab277fa66cefb26
 ```
 
 ## RK3588 Quick Start
@@ -185,6 +197,7 @@ time bash run_evalset_aligned32.sh \
   --no-tta
 
 cat ../outputs/evalset_aligned32_fast/metrics_eval.csv
+cat ../outputs/evalset_aligned32_fast/metrics_summary.json
 ```
 
 Closer nnUNetv2-style validation test:
@@ -195,9 +208,47 @@ time bash run_evalset_aligned32.sh \
   ../outputs/evalset_aligned32
 
 cat ../outputs/evalset_aligned32/metrics_eval.csv
+cat ../outputs/evalset_aligned32/metrics_summary.json
 ```
 
 The closer run is much slower because Gaussian blending, overlap, and TTA are enabled.
+
+Each inference run now also writes operational logs:
+
+```text
+outputs/.../metrics_infer.jsonl
+outputs/.../metrics_eval.csv
+outputs/.../metrics_summary.json
+outputs/.../logs/*_infer.log
+outputs/.../logs/*_monitor.log
+outputs/.../logs/inference_runs.tsv
+```
+
+The monitor records timestamps, memory, disk, Python process RSS, RKNN core
+selection, and readable RKNPU debug load information when the board exposes it.
+
+## H100 / Server Build For 96x160x160 RKNN
+
+Use this package when moving to a larger server:
+
+```text
+deliverables/h100_rknn96_build_package/
+```
+
+It contains the export/convert scripts, `plans.json`, `dataset.json`, and a
+README. It does not include `checkpoint_best.pth`; copy that private file into:
+
+```text
+deliverables/h100_rknn96_build_package/nnunetv2_PARSE_model_minimal/Dataset501_PARSE/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_best.pth
+```
+
+Then run:
+
+```bash
+cd deliverables/h100_rknn96_build_package
+bash run_export_96_onnx.sh
+bash run_convert_96_rknn.sh
+```
 
 ## Conversion Flow
 

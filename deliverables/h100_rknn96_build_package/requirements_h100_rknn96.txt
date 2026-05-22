@@ -1,0 +1,30 @@
+# Environment notes for this PARSE/nnUNetv2 -> ONNX -> RKNN flow.
+# Python itself is not installed by this file. Create the Python/conda env first.
+
+# 1) ONNX export environment: checkpoint_best.pth -> ONNX
+# Tested with:
+#   Python 3.11.14
+#   torch 2.12.0.dev20260222+cu128
+#
+# Torch should match the user's machine/CUDA. Do not blindly install the exact
+# dev build above on another machine. A stable PyTorch build with CUDA or CPU is OK
+# as long as nnUNetv2 can load the checkpoint and export ONNX.
+torch
+onnx==1.21.0
+numpy==2.4.2
+nnunetv2==2.7.0
+SimpleITK==2.5.5
+scipy
+scikit-image
+
+# Optional: only needed if you want to run/verify ONNX with ONNX Runtime.
+# onnxruntime
+
+# 2) Linux/WSL/Docker: convert ONNX to RKNN for RK3588
+# Install this in the RKNN conversion environment, not necessarily in the ONNX export env:
+# rknn-toolkit2==2.3.2
+
+# 3) RK3588 device runtime
+# Install this on the RK3588 device:
+# rknn-toolkit-lite2==2.3.2
+# The device also needs matching librknnrt.so and RKNN driver.

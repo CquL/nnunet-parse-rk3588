@@ -7,7 +7,8 @@ rk3588_parse_nnunetv2_aligned_deploy.zip
 nnunetv2_PARSE_fold0_evalset.zip
 ```
 
-`rk3588_parse_nnunetv2_aligned_deploy.zip.sha256` is optional. It is only for checking whether the deployment zip was transferred correctly.
+`*.sha256` files are optional. They are for checking whether transfer finished
+without corruption.
 
 ## Run On RK3588
 
@@ -47,6 +48,7 @@ time bash run_evalset_aligned32.sh \
   --no-tta
 
 cat ../outputs/evalset_aligned32_fast/metrics_eval.csv
+cat ../outputs/evalset_aligned32_fast/metrics_summary.json
 ```
 
 Closer nnUNetv2-style evalset test, slower:
@@ -57,4 +59,14 @@ time bash run_evalset_aligned32.sh \
   ../outputs/evalset_aligned32
 
 cat ../outputs/evalset_aligned32/metrics_eval.csv
+cat ../outputs/evalset_aligned32/metrics_summary.json
+```
+
+Runtime logs are written under the selected output directory:
+
+```text
+metrics_infer.jsonl
+logs/*_infer.log
+logs/*_monitor.log
+logs/inference_runs.tsv
 ```

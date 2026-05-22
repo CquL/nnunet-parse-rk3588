@@ -16,6 +16,9 @@ Upload these files:
 rk3588_parse_nnunetv2_aligned_deploy.zip
 rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 nnunetv2_PARSE_fold0_evalset.zip
+nnunetv2_PARSE_fold0_evalset.zip.sha256
+h100_rknn96_build_package.zip
+h100_rknn96_build_package.zip.sha256
 ```
 
 The deployment zip contains the RK3588 scripts, configs, and `parse_3d_fullres_patch_32x64x64.rknn`. It does not contain `.pth` or `.onnx`.
@@ -51,6 +54,9 @@ Assets:
 - rk3588_parse_nnunetv2_aligned_deploy.zip
 - rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 - nnunetv2_PARSE_fold0_evalset.zip
+- nnunetv2_PARSE_fold0_evalset.zip.sha256
+- h100_rknn96_build_package.zip
+- h100_rknn96_build_package.zip.sha256
 ```
 
 ## Direct Links After Upload
@@ -61,6 +67,9 @@ These links work after the release assets are uploaded:
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_parse_nnunetv2_aligned_deploy.zip
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip.sha256
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip.sha256
 ```
 
 ## Upload With GitHub CLI
@@ -74,6 +83,9 @@ gh release create aligned32-v0.2 \
   deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip \
   deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256 \
   deploy_upload/nnunetv2_PARSE_fold0_evalset.zip \
+  deploy_upload/nnunetv2_PARSE_fold0_evalset.zip.sha256 \
+  deploy_upload/h100_rknn96_build_package.zip \
+  deploy_upload/h100_rknn96_build_package.zip.sha256 \
   --repo CquL/nnunet-parse-rk3588 \
   --title "RK3588 nnUNetv2-aligned 32x64x64 deployment" \
   --notes-file docs/RELEASE_ASSETS.md

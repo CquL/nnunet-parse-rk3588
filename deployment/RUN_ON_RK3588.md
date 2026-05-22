@@ -31,7 +31,7 @@ Important lines:
 ## 3. Probe RKNN Runtime
 
 ```bash
-python3 device_probe_rknn.py
+python3 device_probe_rknn.py ./parse_3d_fullres_patch_32x64x64.rknn
 ```
 
 This uses random data and only checks whether RKNN Runtime can load and run:
@@ -40,42 +40,72 @@ This uses random data and only checks whether RKNN Runtime can load and run:
 parse_3d_fullres_patch_32x64x64.rknn
 ```
 
-## 4. Run One NIfTI Center Patch
+## 4. Run The nnUNetv2-Aligned Path
 
-Put a test image next to this folder or pass an absolute path:
-
-Simple launcher:
+Fast single-case smoke test:
 
 ```bash
-bash run_nii_inference.sh ../PA000005_0000.nii.gz ../PA000005_center_patch_rknn.nii.gz --center-patch-only
+bash run_aligned32_inference.sh \
+  ../test_images/PA000005_0000.nii.gz \
+  ../outputs/PA000005_fast_mask.nii.gz \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
 ```
 
-Equivalent Python command:
+Closer nnUNetv2-style single case:
 
 ```bash
-python3 device_infer_nii_rknn.py \
-  -i PA000005_0000.nii.gz \
-  -o PA000005_center_patch_rknn.nii.gz \
-  --center-patch-only
+bash run_aligned32_inference.sh \
+  ../test_images/PA000005_0000.nii.gz \
+  ../outputs/PA000005_aligned_mask.nii.gz
 ```
 
-## 5. Run Full Sliding-Window Test
+The closer run is slower because overlap, Gaussian blending, and TTA are enabled.
 
-Simple launcher:
+## 5. Run Fold-0 Validation
+
+After unzipping `nnunetv2_PARSE_fold0_evalset.zip` next to the deployment folder:
 
 ```bash
-bash run_nii_inference.sh ../PA000005_0000.nii.gz ../PA000005_rknn_mask.nii.gz
+bash run_evalset_aligned32.sh \
+  ../../nnunetv2_PARSE_fold0_evalset \
+  ../outputs/evalset_aligned32_fast \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
 ```
 
-Equivalent Python command:
+Results:
+
+```text
+../outputs/evalset_aligned32_fast/metrics_eval.csv
+../outputs/evalset_aligned32_fast/metrics_summary.json
+../outputs/evalset_aligned32_fast/metrics_infer.jsonl
+../outputs/evalset_aligned32_fast/logs/
+```
+
+## Monitoring
+
+The launchers write timestamped logs and lightweight resource snapshots:
+
+```text
+logs/*_infer.log
+logs/*_monitor.log
+logs/inference_runs.tsv
+metrics_infer.jsonl
+metrics_eval.csv
+metrics_summary.json
+```
+
+Set the monitor interval:
 
 ```bash
-python3 device_infer_nii_rknn.py \
-  -i PA000005_0000.nii.gz \
-  -o PA000005_rknn_mask.nii.gz
+MONITOR_INTERVAL=5 bash run_aligned32_inference.sh INPUT.nii.gz OUTPUT.nii.gz
+MONITOR_INTERVAL=0 bash run_aligned32_inference.sh INPUT.nii.gz OUTPUT.nii.gz
 ```
 
-## Important
+## Important Current Limit
 
 The RKNN file in this folder is a feasibility probe using:
 
