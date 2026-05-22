@@ -21,7 +21,16 @@ outputs/
 check_external_data/
 
 # Local full packages and duplicated binary workdirs.
+Dataset501_PARSE/
+PACKAGE_MANIFEST.txt
+publish_to_github_private.ps1
+docs/*.pdf
 nnunet_parse_rk3588_full_package/
+rk3588_parse_deploy/
 rk3588_parse_deploy_package/
 rk3588_parse_min_deploy_package/
+rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 nnunet-parse-rk3588-0.1.0/
+
+# Local exported platform demo files.
+旷枢平台功能介绍/
