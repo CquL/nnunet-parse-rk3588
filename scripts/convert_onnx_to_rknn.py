@@ -4,7 +4,7 @@ from pathlib import Path
 from rknn.api import RKNN
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ONNX_MODEL = ROOT / "deployment" / "parse_3d_fullres_patch_96x160x160.onnx"
 
 

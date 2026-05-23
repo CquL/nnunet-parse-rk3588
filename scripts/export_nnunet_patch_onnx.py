@@ -6,7 +6,7 @@ import torch
 from nnunetv2.inference.predict_from_raw_data import nnUNetPredictor
 
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parents[1]
 MODEL_FOLDER = ROOT / "nnunetv2_PARSE_model_minimal" / "Dataset501_PARSE" / "nnUNetTrainer__nnUNetPlans__3d_fullres"
 OUTPUT_DIR = ROOT / "deployment"
 

@@ -94,9 +94,12 @@ nnunetv2_PARSE_fold0_evalset.zip
 
 Do not upload `checkpoint_best.pth` or `.onnx` files to the device unless explicitly needed for debugging. The RK3588 deployment only needs `.rknn`.
 
-## Old Or Reference Packages
+## Deleted Legacy Packages
 
-These are previous/reference packages and logs. Keep them for now until RK3588 metrics are finalized:
+These were previous/reference packages. They have been removed locally because
+the active deployment is now unified under `rk3588_parse_nnunetv2_aligned_deploy/`.
+The names remain in `.gitignore` so they do not accidentally re-enter git if
+they are regenerated later:
 
 ```text
 rk3588_parse_deploy/

@@ -105,7 +105,7 @@ torch.onnx.export(
 
 ```powershell
 cd D:\nnunet_parse_run
-conda run -n d2l_gpu python export_nnunet_patch_onnx.py --patch-size 96x160x160 --output deployment\parse_3d_fullres_patch_96x160x160.onnx
+conda run -n d2l_gpu python scripts/export_nnunet_patch_onnx.py --patch-size 96x160x160 --output deployment\parse_3d_fullres_patch_96x160x160.onnx
 ```
 
 得到：
@@ -133,7 +133,7 @@ output: 1 x 2 x 96 x 160 x 160
 
 ```powershell
 cd D:\nnunet_parse_run
-conda run -n d2l_gpu python export_nnunet_patch_onnx.py --patch-size 32x64x64 --output deployment\parse_3d_fullres_patch_32x64x64.onnx
+conda run -n d2l_gpu python scripts/export_nnunet_patch_onnx.py --patch-size 32x64x64 --output deployment\parse_3d_fullres_patch_32x64x64.onnx
 ```
 
 得到：
@@ -203,7 +203,7 @@ D:\nnunet_parse_run\deployment\parse_3d_fullres_patch_32x64x64.onnx
 
 ```bash
 cd /mnt/d/nnunet_parse_run
-python convert_onnx_to_rknn.py --onnx deployment/parse_3d_fullres_patch_32x64x64.onnx --rknn deployment/parse_3d_fullres_patch_32x64x64.rknn
+python scripts/convert_onnx_to_rknn.py --onnx deployment/parse_3d_fullres_patch_32x64x64.onnx --rknn deployment/parse_3d_fullres_patch_32x64x64.rknn
 ```
 
 如果在 Windows PowerShell 中运行，需要保证当前环境安装了 RKNN Toolkit2。实际更常见是在 Linux/WSL 环境里运行 RKNN Toolkit2。

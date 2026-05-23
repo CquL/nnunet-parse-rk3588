@@ -67,13 +67,13 @@ nnUNetv2 不能只靠一个 checkpoint_best.pth 直接导出 ONNX。
 本项目实际 ONNX 导出命令：
 
 ```bash
-python export_nnunet_patch_onnx.py --patch-size 32x64x64 --output deployment/parse_3d_fullres_patch_32x64x64.onnx
+python scripts/export_nnunet_patch_onnx.py --patch-size 32x64x64 --output deployment/parse_3d_fullres_patch_32x64x64.onnx
 ```
 
 如果要导出原版 patch 尺寸：
 
 ```bash
-python export_nnunet_patch_onnx.py --patch-size 96x160x160 --output deployment/parse_3d_fullres_patch_96x160x160.onnx
+python scripts/export_nnunet_patch_onnx.py --patch-size 96x160x160 --output deployment/parse_3d_fullres_patch_96x160x160.onnx
 ```
 
 ### 2. 普通 PyTorch 模型：`.pth/.pt -> .onnx`
@@ -122,13 +122,13 @@ convert_onnx_to_rknn.py
 示例命令：
 
 ```bash
-python convert_onnx_to_rknn.py --onnx deployment/model.onnx --rknn deployment/model.rknn
+python scripts/convert_onnx_to_rknn.py --onnx deployment/model.onnx --rknn deployment/model.rknn
 ```
 
 本项目实际 RKNN 转换命令：
 
 ```bash
-python convert_onnx_to_rknn.py --onnx deployment/parse_3d_fullres_patch_32x64x64.onnx --rknn deployment/parse_3d_fullres_patch_32x64x64.rknn
+python scripts/convert_onnx_to_rknn.py --onnx deployment/parse_3d_fullres_patch_32x64x64.onnx --rknn deployment/parse_3d_fullres_patch_32x64x64.rknn
 ```
 
 输出：

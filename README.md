@@ -262,7 +262,7 @@ convert_onnx_to_rknn.py
 Export ONNX:
 
 ```bash
-python export_nnunet_patch_onnx.py \
+python scripts/export_nnunet_patch_onnx.py \
   --patch-size 32x64x64 \
   --output deployment/parse_3d_fullres_patch_32x64x64.onnx
 ```
@@ -270,7 +270,7 @@ python export_nnunet_patch_onnx.py \
 Convert ONNX to RKNN:
 
 ```bash
-python convert_onnx_to_rknn.py \
+python scripts/convert_onnx_to_rknn.py \
   --onnx deployment/parse_3d_fullres_patch_32x64x64.onnx \
   --rknn deployment/parse_3d_fullres_patch_32x64x64.rknn
 ```
