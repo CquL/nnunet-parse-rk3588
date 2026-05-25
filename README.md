@@ -150,7 +150,7 @@ deploy_upload/h100_rknn96_build_package.zip.sha256
 Current deploy zip SHA256:
 
 ```text
-3bd7760086d86ea101d921f65e1869f2a0af526e08fd91ee8ab277fa66cefb26
+b401474e80ed8f0b59a3cc4a4d1ccd137ef746838871fb7ebab780a4ae17193b
 ```
 
 ## RK3588 Quick Start

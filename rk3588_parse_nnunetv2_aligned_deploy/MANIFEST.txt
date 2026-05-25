@@ -1,5 +1,5 @@
 RK3588 nnUNetv2 aligned deploy package
-generated_at=2026-05-25T16:05:53+08:00
+generated_at=2026-05-25T17:18:07+08:00
 
 Files:
 089c76a30dfbad71b966233b46741cbf2e11779cf46954b6e40064de2a613ba5  ./deployment/README_NNUNETV2_ALIGNED_DEPLOYMENT.md
@@ -8,7 +8,7 @@ d7f149773d77f0e7bff28ac7117096ca5417d96260db1fec3609a6c74a1d6da4  ./deployment/R
 dcf1a1da0bebf9dc543c894c4393575eb76bd5ec06ddf2c9c59cd7476cfa09e8  ./deployment/check_rk3588_env.sh
 9cdcaef4c06788238890aa7a9767cbff5cef446318955023170c7a954714d1a7  ./deployment/device_infer_nii_rknn.py
 5cfe59ca022c6cdbdbb81d1a3aae818e0f6e9306095dff0860dd9e4657f6533c  ./deployment/device_infer_nii_rknn_nnunetv2_aligned.py
-3378949988825b86a8512fecde0f6a277e52495ada9ee63d6650ae9d0c01f9eb  ./deployment/device_probe_rknn.py
+6ab341fbd054c745cd22d869c1c25264f8b20ea5284a9b67c322c12111beb7fe  ./deployment/device_probe_rknn.py
 8bf1121f9b00649b6cac951266442b07f8c2c8b85bd5559f56cbd9800cd35bd0  ./deployment/evaluate_segmentation_dice.py
 28b7440a420b76a6ab79bb1af0d61f5b83eeee695a42a748ffb57bd0a974be9d  ./deployment/install_rk3588_deps.sh
 0191f47202f36aa0f1a42393104d7fb237efe2a25eb0e8030e8ac94452929b9f  ./deployment/model_config_parse_current_32x64x64.json
