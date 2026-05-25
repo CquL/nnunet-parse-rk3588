@@ -86,8 +86,9 @@ deployment/
 
 deliverables/
   Clean handoff packages. `h100_rknn96_build_package` is the server-side
-  package for exporting/converting the official 96x160x160 RKNN. The checkpoint
-  is intentionally not stored in git.
+  package for exporting/converting the official 96x160x160 RKNN. The newer
+  `h100_rknn64_build_package` is the recommended middle-size candidate for
+  generating a <4GB RKNN. The checkpoint is intentionally not stored in git.
 
 rk3588_parse_nnunetv2_aligned_deploy/
   Unzipped deploy package skeleton. The large .rknn and test image are excluded from git.
@@ -132,6 +133,8 @@ https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_pars
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/nnunetv2_PARSE_fold0_evalset.zip.sha256
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn64_build_package.zip
+https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn64_build_package.zip.sha256
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip
 https://github.com/CquL/nnunet-parse-rk3588/releases/latest/download/h100_rknn96_build_package.zip.sha256
 ```
@@ -143,6 +146,8 @@ deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip
 deploy_upload/rk3588_parse_nnunetv2_aligned_deploy.zip.sha256
 deploy_upload/nnunetv2_PARSE_fold0_evalset.zip
 deploy_upload/nnunetv2_PARSE_fold0_evalset.zip.sha256
+deploy_upload/h100_rknn64_build_package.zip
+deploy_upload/h100_rknn64_build_package.zip.sha256
 deploy_upload/h100_rknn96_build_package.zip
 deploy_upload/h100_rknn96_build_package.zip.sha256
 ```
@@ -150,7 +155,7 @@ deploy_upload/h100_rknn96_build_package.zip.sha256
 Current deploy zip SHA256:
 
 ```text
-b401474e80ed8f0b59a3cc4a4d1ccd137ef746838871fb7ebab780a4ae17193b
+af0843c097ca48b55ec3701790edcf56a6a2f10a3a009480eed6188f9d28f6f0
 ```
 
 ## RK3588 Quick Start
@@ -228,6 +233,34 @@ The monitor records timestamps, memory, disk, Python process RSS, RKNN core
 selection, and readable RKNPU debug load information when the board exposes it.
 
 ## H100 / Server Build For 96x160x160 RKNN
+
+The `96x160x160` RKNN currently exports to about 5GB and fails on RKNN Runtime
+with an apparent >4GB parsing limitation. The recommended next candidate is
+`64x128x128`.
+
+## H100 / Server Build For 64x128x128 RKNN
+
+Use this package for the middle-size candidate:
+
+```text
+h100_rknn64_build_package/
+```
+
+It contains export/convert scripts, `plans.json`, `dataset.json`, and a README.
+It does not include `checkpoint_best.pth`; copy that private file into:
+
+```text
+h100_rknn64_build_package/nnunetv2_PARSE_model_minimal/Dataset501_PARSE/nnUNetTrainer__nnUNetPlans__3d_fullres/fold_0/checkpoint_best.pth
+```
+
+Then run:
+
+```bash
+cd h100_rknn64_build_package
+bash run_export_64_onnx.sh
+bash run_convert_64_rknn.sh
+ls -lh deployment/parse_3d_fullres_patch_64x128x128.rknn
+```
 
 Use this package when moving to a larger server:
 

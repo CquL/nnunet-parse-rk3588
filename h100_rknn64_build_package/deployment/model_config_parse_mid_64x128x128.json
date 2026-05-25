@@ -1,0 +1,23 @@
+{
+  "model_file": "parse_3d_fullres_patch_64x128x128.rknn",
+  "num_classes": 2,
+  "rknn_patch_size_zyx": [64, 128, 128],
+  "plans_patch_size_zyx": [96, 160, 160],
+  "target_spacing_zyx": [1.0, 0.65625, 0.65625],
+  "tile_step_size": 0.5,
+  "use_gaussian": true,
+  "resample_logits_to_original": true,
+  "tta": true,
+  "normalization": {
+    "scheme": "CTNormalization",
+    "clip_low": -778.0,
+    "clip_high": 445.0,
+    "mean": 42.44314956665039,
+    "std": 301.8079528808594
+  },
+  "labels": {
+    "background": 0,
+    "vessel": 1
+  },
+  "note": "Middle-size RKNN candidate. Larger than 32x64x64 and expected to stay below the RKNN Runtime 4GB parsing boundary, unlike the 96x160x160 RKNN."
+}

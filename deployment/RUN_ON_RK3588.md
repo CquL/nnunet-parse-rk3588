@@ -102,6 +102,19 @@ bash run_evalset_aligned96.sh \
   --no-tta
 ```
 
+If the middle-size `64x128x128` RKNN is copied in, use:
+
+```bash
+python3 device_probe_rknn.py ./parse_3d_fullres_patch_64x128x128.rknn --shape 64x128x128
+
+bash run_evalset_aligned64.sh \
+  ../../nnunetv2_PARSE_fold0_evalset \
+  ../outputs/evalset_64_fast \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
+```
+
 ## Monitoring
 
 The launchers write timestamped logs and lightweight resource snapshots:
