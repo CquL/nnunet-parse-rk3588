@@ -15,6 +15,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INPUT="$1"
 OUTPUT="$2"
 shift 2
+CONFIG_PATH="${CONFIG_PATH:-$SCRIPT_DIR/model_config_parse_current_32x64x64.json}"
 
 OUTPUT_PARENT="$(dirname "$OUTPUT")"
 mkdir -p "$OUTPUT_PARENT"
@@ -55,7 +56,7 @@ cmd=(
   python3 "$SCRIPT_DIR/device_infer_nii_rknn_nnunetv2_aligned.py"
   -i "$INPUT"
   -o "$OUTPUT"
-  --config "$SCRIPT_DIR/model_config_parse_current_32x64x64.json"
+  --config "$CONFIG_PATH"
   --metrics-jsonl "$METRICS_JSONL"
   "$@"
 )

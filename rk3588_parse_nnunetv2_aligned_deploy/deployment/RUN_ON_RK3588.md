@@ -34,6 +34,12 @@ Important lines:
 python3 device_probe_rknn.py ./parse_3d_fullres_patch_32x64x64.rknn
 ```
 
+For the 96x160x160 RKNN after copying it to this directory:
+
+```bash
+python3 device_probe_rknn.py ./parse_3d_fullres_patch_96x160x160.rknn --shape 96x160x160
+```
+
 This uses random data and only checks whether RKNN Runtime can load and run:
 
 ```text
@@ -83,6 +89,17 @@ Results:
 ../outputs/evalset_aligned32_fast/metrics_summary.json
 ../outputs/evalset_aligned32_fast/metrics_infer.jsonl
 ../outputs/evalset_aligned32_fast/logs/
+```
+
+After the 96x160x160 RKNN is copied in, use:
+
+```bash
+bash run_evalset_aligned96.sh \
+  ../../nnunetv2_PARSE_fold0_evalset \
+  ../outputs/evalset_96_fast \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
 ```
 
 ## Monitoring

@@ -76,17 +76,32 @@ bash run_evalset_aligned32.sh \
 
 ## Run True 96x160x160 RKNN After It Is Compiled
 
-Copy `model_config_parse_true_96x160x160.template.json` to a real config, place `parse_3d_fullres_patch_96x160x160.rknn` in this folder, then run:
+Place `parse_3d_fullres_patch_96x160x160.rknn` in this folder, verify it can
+load, then run:
 
 ```bash
-cp model_config_parse_true_96x160x160.template.json model_config_parse_true_96x160x160.json
-python3 device_infer_nii_rknn_nnunetv2_aligned.py \
-  -i ../PA000005_0000.nii.gz \
-  -o ../PA000005_rknn_96_mask.nii.gz \
-  --config model_config_parse_true_96x160x160.json
+python3 device_probe_rknn.py ./parse_3d_fullres_patch_96x160x160.rknn --shape 96x160x160
+
+bash run_aligned96_inference.sh \
+  ../test_images/PA000005_0000.nii.gz \
+  ../outputs/PA000005_rknn_96_fast_mask.nii.gz \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
 ```
 
 Mirror TTA is enabled by default to be closer to nnUNetv2 default prediction. Add `--no-tta` only for a faster pass or when comparing against the saved Windows baseline that used `--disable_tta`.
+
+For the fold-0 evalset:
+
+```bash
+bash run_evalset_aligned96.sh \
+  ../../nnunetv2_PARSE_fold0_evalset \
+  ../outputs/evalset_96_fast \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
+```
 
 ## Device Files Needed
 

@@ -24,6 +24,13 @@ bash check_rk3588_env.sh
 python3 device_probe_rknn.py ./parse_3d_fullres_patch_32x64x64.rknn
 ```
 
+If you also copy `parse_3d_fullres_patch_96x160x160.rknn` into the deployment
+folder, probe it with:
+
+```bash
+python3 device_probe_rknn.py ./parse_3d_fullres_patch_96x160x160.rknn --shape 96x160x160
+```
+
 For the closest nnUNetv2-style preprocessing, `check_rk3588_env.sh` should show `scipy import: OK` and `scikit-image import: OK`. If those two are missing, inference still runs, but it falls back to SimpleITK resampling.
 
 Fast single-case test:
@@ -60,6 +67,17 @@ time bash run_evalset_aligned32.sh \
 
 cat ../outputs/evalset_aligned32/metrics_eval.csv
 cat ../outputs/evalset_aligned32/metrics_summary.json
+```
+
+Fast 96x160x160 evalset test after the 96 RKNN is copied into `deployment/`:
+
+```bash
+time bash run_evalset_aligned96.sh \
+  ../../nnunetv2_PARSE_fold0_evalset \
+  ../outputs/evalset_96_fast \
+  --tile-step-size 1.0 \
+  --no-gaussian \
+  --no-tta
 ```
 
 Runtime logs are written under the selected output directory:

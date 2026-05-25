@@ -1,3 +1,4 @@
+import argparse
 import sys
 from pathlib import Path
 
@@ -13,6 +14,13 @@ except Exception as exc:
 
 
 MODEL_PATH = Path(__file__).resolve().parent / "parse_3d_fullres_patch_32x64x64.rknn"
+
+
+def parse_shape(value: str) -> tuple[int, int, int]:
+    parts = [int(x) for x in value.lower().replace(",", "x").split("x")]
+    if len(parts) != 3:
+        raise argparse.ArgumentTypeError("Shape must look like 32x64x64 or 96x160x160")
+    return tuple(parts)
 
 
 def check_ret(ret: int, step: str) -> None:
@@ -49,7 +57,12 @@ def select_npu_core_mask(rknn_lite_cls):
 
 
 def main() -> None:
-    model_path = Path(sys.argv[1]) if len(sys.argv) > 1 else MODEL_PATH
+    parser = argparse.ArgumentParser(description="Probe RKNNLite model load/init/inference with a random 3D patch.")
+    parser.add_argument("model", nargs="?", default=str(MODEL_PATH), help="RKNN model path")
+    parser.add_argument("--shape", type=parse_shape, default=(32, 64, 64), help="Input patch shape zyx, for example 96x160x160")
+    args = parser.parse_args()
+
+    model_path = Path(args.model)
     if not model_path.exists():
         raise FileNotFoundError(f"RKNN model not found: {model_path}")
 
@@ -70,7 +83,7 @@ def main() -> None:
             ret = rknn.init_runtime(core_mask=RKNNLite.NPU_CORE_AUTO)
     check_ret(ret, "init_runtime")
 
-    image_patch = np.random.randn(1, 1, 32, 64, 64).astype(np.float32)
+    image_patch = np.random.randn(1, 1, *args.shape).astype(np.float32)
     outputs = rknn.inference(inputs=[image_patch])
     if outputs is None:
         raise RuntimeError("inference returned None")
