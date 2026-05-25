@@ -10,6 +10,13 @@ import numpy as np
 import SimpleITK as sitk
 
 
+def nii_stem(path: Path) -> str:
+    name = path.name
+    if name.endswith(".nii.gz"):
+        return name[:-7]
+    return path.stem
+
+
 def dice_score(pred: np.ndarray, label: np.ndarray, foreground_label: int) -> float:
     pred_fg = pred == foreground_label
     label_fg = label == foreground_label
@@ -101,7 +108,7 @@ def main() -> None:
     missing_count = 0
     failed_count = 0
     for label_path in sorted(label_dir.glob("*.nii.gz")):
-        case = label_path.name.removesuffix(".nii.gz")
+        case = nii_stem(label_path)
         pred_path = pred_dir / f"{case}.nii.gz"
         if not pred_path.exists():
             missing_count += 1

@@ -33,6 +33,13 @@ DEFAULT_CONFIG = ROOT / "model_config_parse_current_32x64x64.json"
 ANISO_THRESHOLD = 3.0
 
 
+def nii_stem(path: Path) -> str:
+    name = path.name
+    if name.endswith(".nii.gz"):
+        return name[:-7]
+    return path.stem
+
+
 def now_iso() -> str:
     return dt.datetime.now().astimezone().isoformat(timespec="seconds")
 
@@ -701,7 +708,7 @@ def main() -> None:
         raise FileNotFoundError(f"RKNN model not found: {model_path}")
     metrics.update(
         {
-            "case_id": Path(args.output).name.removesuffix(".nii.gz"),
+            "case_id": nii_stem(Path(args.output)),
             "model_path": str(model_path),
             "model_size_bytes": model_path.stat().st_size,
             "model_sha256_if_small": file_sha256(model_path),

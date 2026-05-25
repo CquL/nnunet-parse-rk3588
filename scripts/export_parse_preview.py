@@ -6,6 +6,13 @@ import SimpleITK as sitk
 from PIL import Image
 
 
+def nii_stem(path: Path) -> str:
+    name = path.name
+    if name.endswith(".nii.gz"):
+        return name[:-7]
+    return path.stem
+
+
 def normalize_to_uint8(volume: np.ndarray) -> tuple[np.ndarray, float, float]:
     flat = volume.ravel()
     step = max(1, flat.size // 1_000_000)
@@ -64,7 +71,7 @@ def main() -> None:
         raise FileNotFoundError(f"No .nii.gz prediction files found in {predictions_dir}")
 
     for pred_path in prediction_files:
-        case_id = pred_path.name.removesuffix(".nii.gz")
+        case_id = nii_stem(pred_path)
         image_path = images_dir / f"{case_id}_0000.nii.gz"
         if not image_path.exists():
             print(f"Skip {case_id}: input image not found: {image_path}")
